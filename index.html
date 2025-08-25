@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Financiero - CCPP Lomas 2</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for creating charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Dashboard Header -->
+        <header class="mb-8">
+            <div class="flex flex-wrap justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Análisis Financiero</h1>
+                    <p class="text-gray-500 mt-1">CCPP Lomas 2 - Resumen de Movimientos</p>
+                </div>
+                <!-- Month Filter Dropdown -->
+                <div class="mt-4 sm:mt-0">
+                    <label for="monthFilter" class="block text-sm font-medium text-gray-700">Filtrar por Mes</label>
+                    <select id="monthFilter" name="monthFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Financial Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Total Income Card -->
+            <div class="summary-card bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-500">Ingresos Totales</h3>
+                <p id="totalIncome" class="text-3xl font-bold text-green-600 mt-2"><div class="loader-small"></div></p>
+            </div>
+            <!-- Total Expenses Card -->
+            <div class="summary-card bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-500">Gastos Totales</h3>
+                <p id="totalExpenses" class="text-3xl font-bold text-red-600 mt-2"><div class="loader-small"></div></p>
+            </div>
+            <!-- Net Balance Card -->
+            <div class="summary-card bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-500">Balance Neto</h3>
+                <p id="netBalance" class="text-3xl font-bold text-blue-600 mt-2"><div class="loader-small"></div></p>
+            </div>
+        </div>
+
+        <!-- Main grid for charts -->
+        <div id="charts-grid" class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Loading state for charts -->
+            <div id="loading-container" class="lg:col-span-5 text-center p-10 bg-white rounded-xl">
+                <div class="loader-large"></div>
+                <p class="text-gray-500 mt-4">Cargando datos desde Google Sheets...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
