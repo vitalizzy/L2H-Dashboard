@@ -1,6 +1,6 @@
 import { GOOGLE_SHEET_API_URL } from './config.js';
 import { fetchData } from './api.js';
-import { updateSummaryCards, populateMonthFilter, showLoadingError, hideLoader, updateTransactionCount } from './ui.js';
+import { updateSummaryCards, populateMonthFilter, showLoadingError, hideLoader, updateTransactionCount, formatCurrency } from './ui.js';
 import { renderCharts } from './charts.js';
 import { exportToPDF, exportToExcel, exportToCSV } from './export.js';
 import { initializeTheme, toggleTheme } from './theme.js';
@@ -218,17 +218,6 @@ function formatDate(dateString) {
     } catch (e) {
         return dateString;
     }
-}
-
-/**
- * Format currency for display
- */
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('es-ES', {
-        style: 'currency',
-        currency: 'MXN',
-        minimumFractionDigits: 2
-    }).format(amount);
 }
 
 /**
