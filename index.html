@@ -1,65 +1,223 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análisis Financiero - CCPP Lomas 2</title>
-    <!-- Tailwind CSS for styling -->
+    <title>L2H Dashboard - Análisis Financiero Avanzado</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js for creating charts -->
+    
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="p-4 sm:p-6 md:p-8">
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation Bar -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo and Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">L2H Dashboard</h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Análisis Financiero Avanzado</p>
+                    </div>
+                </div>
+                
+                <!-- Controls -->
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+                        <i class="fas fa-moon text-blue-400 hidden dark:block"></i>
+                    </button>
+                    
+                    <!-- Export Button -->
+                    <button id="exportBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
+                        <i class="fas fa-download"></i>
+                        <span>Exportar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-    <div class="max-w-7xl mx-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Dashboard Header -->
         <header class="mb-8">
-            <div class="flex flex-wrap justify-between items-center">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-800">Análisis Financiero</h1>
-                    <p class="text-gray-500 mt-1">CCPP Lomas 2 - Resumen de Movimientos</p>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Resumen Financiero</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">CCPP Lomas 2 - Análisis detallado de movimientos</p>
                 </div>
-                <!-- Month Filter Dropdown -->
-                <div class="mt-4 sm:mt-0">
-                    <label for="monthFilter" class="block text-sm font-medium text-gray-700">Filtrar por Mes</label>
-                    <select id="monthFilter" name="monthFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md shadow-sm">
-                        <!-- Options will be populated by JavaScript -->
-                    </select>
+                
+                <!-- Filters Section -->
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                    <!-- Month Filter -->
+                    <div class="relative">
+                        <label for="monthFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-calendar-alt mr-2"></i>Mes
+                        </label>
+                        <select id="monthFilter" class="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <!-- Category Filter -->
+                    <div class="relative">
+                        <label for="categoryFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-tags mr-2"></i>Categoría
+                        </label>
+                        <select id="categoryFilter" class="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="all">Todas las categorías</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Search -->
+                    <div class="relative">
+                        <label for="searchInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <i class="fas fa-search mr-2"></i>Buscar
+                        </label>
+                        <input type="text" id="searchInput" placeholder="Buscar transacciones..." class="block w-full pl-3 pr-10 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                 </div>
             </div>
         </header>
 
         <!-- Financial Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Total Income Card -->
-            <div class="summary-card bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-500">Ingresos Totales</h3>
-                <p id="totalIncome" class="text-3xl font-bold text-green-600 mt-2"><div class="loader-small"></div></p>
+            <div class="summary-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Ingresos Totales</p>
+                        <p id="totalIncome" class="text-2xl font-bold text-green-600 dark:text-green-400 mt-2">
+                            <div class="loader-small"></div>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-up text-green-600 dark:text-green-400"></i>
+                    </div>
+                </div>
             </div>
+            
             <!-- Total Expenses Card -->
-            <div class="summary-card bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-500">Gastos Totales</h3>
-                <p id="totalExpenses" class="text-3xl font-bold text-red-600 mt-2"><div class="loader-small"></div></p>
+            <div class="summary-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Gastos Totales</p>
+                        <p id="totalExpenses" class="text-2xl font-bold text-red-600 dark:text-red-400 mt-2">
+                            <div class="loader-small"></div>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-arrow-down text-red-600 dark:text-red-400"></i>
+                    </div>
+                </div>
             </div>
+            
             <!-- Net Balance Card -->
-            <div class="summary-card bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-500">Balance Neto</h3>
-                <p id="netBalance" class="text-3xl font-bold text-blue-600 mt-2"><div class="loader-small"></div></p>
+            <div class="summary-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Balance Neto</p>
+                        <p id="netBalance" class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                            <div class="loader-small"></div>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-balance-scale text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Transaction Count Card -->
+            <div class="summary-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Transacciones</p>
+                        <p id="transactionCount" class="text-2xl font-bold text-purple-600 dark:text-purple-400 mt-2">
+                            <div class="loader-small"></div>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-receipt text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Main grid for charts -->
-        <div id="charts-grid" class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Charts Grid -->
+        <div id="charts-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <!-- Loading state for charts -->
-            <div id="loading-container" class="lg:col-span-5 text-center p-10 bg-white rounded-xl">
+            <div id="loading-container" class="lg:col-span-12 text-center p-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                 <div class="loader-large"></div>
-                <p class="text-gray-500 mt-4">Cargando datos desde Google Sheets...</p>
+                <p class="text-gray-500 dark:text-gray-400 mt-4">Cargando datos desde Google Sheets...</p>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Transacciones Detalladas</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="transactionsTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Descripción</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Categoría</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ingresos</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Gastos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Exportar Datos</h3>
+                    <button id="closeExportModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <button id="exportPDF" class="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Exportar como PDF</span>
+                    </button>
+                    <button id="exportExcel" class="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors">
+                        <i class="fas fa-file-excel"></i>
+                        <span>Exportar como Excel</span>
+                    </button>
+                    <button id="exportCSV" class="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                        <i class="fas fa-file-csv"></i>
+                        <span>Exportar como CSV</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
