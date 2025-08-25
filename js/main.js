@@ -1,7 +1,7 @@
 import { GOOGLE_SHEET_API_URL } from './config.js';
 import { fetchData } from './api.js';
 import { updateSummaryCards, populateMonthFilter, showLoadingError, hideLoader, updateTransactionCount, formatCurrency } from './ui.js';
-import { renderCharts } from './charts.js';
+import { renderCharts, setChartFilterCallback, clearChartSelections } from './charts.js';
 import { exportToPDF, exportToExcel, exportToCSV } from './export.js';
 import { initializeTheme, toggleTheme } from './theme.js';
 
@@ -99,6 +99,47 @@ function initializeFilterSystem() {
             applyFilters();
         }, 300);
     });
+}
+
+/**
+ * Initialize clear filters functionality
+ */
+function initializeClearFilters() {
+    // Add clear filters button to the UI
+    const filtersSection = document.querySelector('.flex.flex-col.sm\\:flex-row.space-y-3.sm\\:space-y-0.sm\\:space-x-4');
+    if (filtersSection) {
+        const clearButton = document.createElement('button');
+        clearButton.id = 'clearFiltersBtn';
+        clearButton.className = 'px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2';
+        clearButton.innerHTML = '<i class="fas fa-times"></i><span>Limpiar Filtros</span>';
+        clearButton.addEventListener('click', clearAllFilters);
+        filtersSection.appendChild(clearButton);
+    }
+}
+
+/**
+ * Clear all filters and chart selections
+ */
+function clearAllFilters() {
+    // Clear filter values
+    currentFilters.month = 'all';
+    currentFilters.category = 'all';
+    currentFilters.search = '';
+    
+    // Reset filter dropdowns
+    const monthFilter = document.getElementById('monthFilter');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const searchInput = document.getElementById('searchInput');
+    
+    if (monthFilter) monthFilter.value = 'all';
+    if (categoryFilter) categoryFilter.value = 'all';
+    if (searchInput) searchInput.value = '';
+    
+    // Clear chart selections
+    clearChartSelections();
+    
+    // Apply filters to update UI
+    applyFilters();
 }
 
 /**
@@ -325,6 +366,10 @@ async function initializeDashboard() {
         // Initialize systems
         initializeThemeSystem();
         initializeExportSystem();
+        initializeClearFilters();
+        
+        // Set up chart filter callback
+        setChartFilterCallback(applyFilters);
         
         // Load data
         fullDataset = await fetchData(GOOGLE_SHEET_API_URL);

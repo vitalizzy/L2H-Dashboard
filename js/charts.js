@@ -4,6 +4,23 @@ import { getCurrentTheme } from './theme.js';
 // Store chart instances to be able to destroy them later
 let monthlyChart, expenseChart, topExpensesChart;
 
+// Store current chart filters
+let chartFilters = {
+    selectedMonth: null,
+    selectedCategory: null
+};
+
+// Callback function to update filters from charts
+let updateFiltersCallback = null;
+
+/**
+ * Set the callback function for updating filters
+ * @param {Function} callback - Function to call when chart filters change
+ */
+export function setChartFilterCallback(callback) {
+    updateFiltersCallback = callback;
+}
+
 /**
  * Get chart colors based on current theme
  * @returns {Object} Color configuration
@@ -70,6 +87,170 @@ function getCommonOptions() {
 }
 
 /**
+ * Handle chart click events for filtering
+ * @param {Event} event - Click event
+ * @param {Array} elements - Chart elements
+ * @param {string} chartType - Type of chart ('monthly', 'expense', 'top')
+ */
+function handleChartClick(event, elements, chartType) {
+    if (elements.length === 0) return;
+    
+    const element = elements[0];
+    const index = element.index;
+    const datasetIndex = element.datasetIndex;
+    
+    if (chartType === 'monthly') {
+        // Monthly chart - filter by month
+        const monthLabels = monthlyChart.data.labels;
+        const clickedMonth = monthLabels[index];
+        
+        if (chartFilters.selectedMonth === clickedMonth) {
+            // If same month clicked again, clear filter
+            chartFilters.selectedMonth = null;
+        } else {
+            chartFilters.selectedMonth = clickedMonth;
+        }
+        
+        // Update month filter dropdown
+        const monthFilter = document.getElementById('monthFilter');
+        if (monthFilter) {
+            monthFilter.value = chartFilters.selectedMonth || 'all';
+        }
+        
+    } else if (chartType === 'expense') {
+        // Expense distribution chart - filter by category
+        const categoryLabels = expenseChart.data.labels;
+        const clickedCategory = categoryLabels[index];
+        
+        if (chartFilters.selectedCategory === clickedCategory) {
+            // If same category clicked again, clear filter
+            chartFilters.selectedCategory = null;
+        } else {
+            chartFilters.selectedCategory = clickedCategory;
+        }
+        
+        // Update category filter dropdown
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) {
+            categoryFilter.value = chartFilters.selectedCategory || 'all';
+        }
+        
+    } else if (chartType === 'top') {
+        // Top expenses chart - filter by category
+        const categoryLabels = topExpensesChart.data.labels;
+        const clickedCategory = categoryLabels[index];
+        
+        if (chartFilters.selectedCategory === clickedCategory) {
+            // If same category clicked again, clear filter
+            chartFilters.selectedCategory = null;
+        } else {
+            chartFilters.selectedCategory = clickedCategory;
+        }
+        
+        // Update category filter dropdown
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter) {
+            categoryFilter.value = chartFilters.selectedCategory || 'all';
+        }
+    }
+    
+    // Call the callback to update filters
+    if (updateFiltersCallback) {
+        updateFiltersCallback();
+    }
+    
+    // Update chart colors to show selection
+    updateChartSelection(chartType);
+}
+
+/**
+ * Update chart colors to show selected elements
+ * @param {string} chartType - Type of chart
+ */
+function updateChartSelection(chartType) {
+    const colors = getChartColors();
+    
+    if (chartType === 'monthly' && monthlyChart) {
+        const datasets = monthlyChart.data.datasets;
+        const labels = monthlyChart.data.labels;
+        
+        datasets.forEach(dataset => {
+            dataset.backgroundColor = labels.map((label, index) => {
+                if (label === chartFilters.selectedMonth) {
+                    return dataset.borderColor + 'CC'; // More opaque for selected
+                }
+                return dataset.borderColor + '80'; // Normal opacity
+            });
+        });
+        
+        monthlyChart.update('none');
+        
+    } else if (chartType === 'expense' && expenseChart) {
+        const dataset = expenseChart.data.datasets[0];
+        const labels = expenseChart.data.labels;
+        
+        dataset.backgroundColor = labels.map((label, index) => {
+            if (label === chartFilters.selectedCategory) {
+                return colors.colors[index % colors.colors.length] + 'CC'; // More opaque for selected
+            }
+            return colors.colors[index % colors.colors.length]; // Normal opacity
+        });
+        
+        expenseChart.update('none');
+        
+    } else if (chartType === 'top' && topExpensesChart) {
+        const dataset = topExpensesChart.data.datasets[0];
+        const labels = topExpensesChart.data.labels;
+        
+        dataset.backgroundColor = labels.map((label, index) => {
+            if (label === chartFilters.selectedCategory) {
+                return colors.colors[index % colors.colors.length] + 'CC'; // More opaque for selected
+            }
+            return colors.colors[index % colors.colors.length] + '80'; // Normal opacity
+        });
+        
+        topExpensesChart.update('none');
+    }
+}
+
+/**
+ * Clear all chart selections
+ */
+export function clearChartSelections() {
+    chartFilters.selectedMonth = null;
+    chartFilters.selectedCategory = null;
+    
+    // Reset chart colors
+    if (monthlyChart) {
+        const datasets = monthlyChart.data.datasets;
+        datasets.forEach(dataset => {
+            dataset.backgroundColor = dataset.borderColor + '80';
+        });
+        monthlyChart.update('none');
+    }
+    
+    if (expenseChart) {
+        const colors = getChartColors();
+        const dataset = expenseChart.data.datasets[0];
+        const labels = expenseChart.data.labels;
+        dataset.backgroundColor = labels.map((label, index) => 
+            colors.colors[index % colors.colors.length]
+        );
+        expenseChart.update('none');
+    }
+    
+    if (topExpensesChart) {
+        const colors = getChartColors();
+        const dataset = topExpensesChart.data.datasets[0];
+        const labels = topExpensesChart.data.labels;
+        dataset.backgroundColor = labels.map((label, index) => 
+            colors.colors[index % colors.colors.length] + '80'
+        );
+        topExpensesChart.update('none');
+    }
+}
+
+/**
  * Renders all charts on the dashboard.
  * @param {object} monthlyData - Data for the monthly comparison chart.
  * @param {object} expenseCategoryData - Data for the expense distribution chart.
@@ -114,6 +295,10 @@ export function renderCharts(monthlyData, expenseCategoryData, topExpensesData) 
         },
         options: {
             ...getCommonOptions(),
+            onClick: (event, elements) => handleChartClick(event, elements, 'monthly'),
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+            },
             scales: {
                 x: {
                     grid: {
@@ -152,7 +337,7 @@ export function renderCharts(monthlyData, expenseCategoryData, topExpensesData) 
                 ...getCommonOptions().plugins,
                 title: {
                     display: true,
-                    text: 'Comparación Mensual: Ingresos vs Gastos',
+                    text: 'Comparación Mensual: Ingresos vs Gastos (Clic para filtrar)',
                     color: colors.text,
                     font: {
                         family: 'Inter',
@@ -182,6 +367,10 @@ export function renderCharts(monthlyData, expenseCategoryData, topExpensesData) 
         },
         options: {
             ...getCommonOptions(),
+            onClick: (event, elements) => handleChartClick(event, elements, 'expense'),
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+            },
             plugins: {
                 ...getCommonOptions().plugins,
                 legend: {
@@ -194,7 +383,7 @@ export function renderCharts(monthlyData, expenseCategoryData, topExpensesData) 
                 },
                 title: {
                     display: true,
-                    text: 'Distribución de Gastos por Categoría',
+                    text: 'Distribución de Gastos por Categoría (Clic para filtrar)',
                     color: colors.text,
                     font: {
                         family: 'Inter',
@@ -224,6 +413,10 @@ export function renderCharts(monthlyData, expenseCategoryData, topExpensesData) 
         },
         options: {
             ...getCommonOptions(),
+            onClick: (event, elements) => handleChartClick(event, elements, 'top'),
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+            },
             indexAxis: 'y',
             plugins: {
                 ...getCommonOptions().plugins,
@@ -232,7 +425,7 @@ export function renderCharts(monthlyData, expenseCategoryData, topExpensesData) 
                 },
                 title: {
                     display: true,
-                    text: 'Top 5 Categorías de Gastos',
+                    text: 'Top 5 Categorías de Gastos (Clic para filtrar)',
                     color: colors.text,
                     font: {
                         family: 'Inter',
@@ -353,6 +546,10 @@ function renderTrendChart(monthlyData, colors) {
         },
         options: {
             ...getCommonOptions(),
+            onClick: (event, elements) => handleChartClick(event, elements, 'monthly'),
+            onHover: (event, elements) => {
+                event.native.target.style.cursor = elements.length ? 'pointer' : 'default';
+            },
             scales: {
                 x: {
                     grid: {
@@ -387,7 +584,7 @@ function renderTrendChart(monthlyData, colors) {
                 ...getCommonOptions().plugins,
                 title: {
                     display: true,
-                    text: 'Tendencia de Ingresos y Gastos',
+                    text: 'Tendencia de Ingresos y Gastos (Clic para filtrar)',
                     color: colors.text,
                     font: {
                         family: 'Inter',
